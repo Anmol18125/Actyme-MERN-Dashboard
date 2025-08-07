@@ -1,0 +1,10 @@
+{
+  "cohortProgress": "Cohort Progress",
+  "refresh": "Refresh",
+  "lightMode": "Light Mode",
+  "darkMode": "Dark Mode",
+  "achieved": "achieved",
+  "remaining": "remaining",
+  "loading": "Loading",
+  "errorFetching": "Unable to fetch progress. Please try again later."
+}
