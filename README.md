@@ -1,4 +1,5 @@
-Actyme MERN Dashboard
+**Actyme MERN Dashboard
+**
 Welcome to Actyme, a sleek and modern MERN (MongoDB, Express, React, Node.js) stack application that delivers real-time tracking, budget management, and automated email summaries—all within a responsive and accessible interface.
 
 Why Actyme Stands Out
