@@ -1,118 +1,97 @@
-# 🚀 Actyme MERN Dashboard
+Actyme MERN Dashboard
+Welcome to Actyme, a sleek and modern MERN (MongoDB, Express, React, Node.js) stack application that delivers real-time tracking, budget management, and automated email summaries—all within a responsive and accessible interface.
 
-Welcome to **Actyme**, a modern full-stack MERN application that brings together real-time user tracking, prize budget management, and automated email communication — all wrapped in a sleek, responsive, and accessible interface.
+Why Actyme Stands Out
+Real‑Time Progress Dashboard
+Monitor cohort performance live with dynamic visuals—goals, revenue, and engagement—powered by animated progress bars and a responsive design.
 
-Designed for teams and individuals who want more than just numbers — Actyme delivers meaningful insight, rewarding progress, and beautiful UX for both web and mobile.
+Dark/Light Mode Toggle
+Effortlessly switch themes with WCAG AA–compliant contrast levels and smooth transitions.
 
----
+Internationalization (i18n)
+Built using react-i18next, making UI translation seamless through JSON files—ready for global users out of the box.
 
-## 🌟 What Makes Actyme Special?
+Email Summaries & Reporting
+Send comprehensive, styled expense reports via email with a clean and reliable backend API.
 
-✅ **📊 Progress Dashboard (M8)**  
-Track cohort progress in real-time. Visualize goals, revenue targets, and user engagement — all with beautiful animated bars and responsive layouts.
+Dynamic Prize Budget Engine
+Automatically calculates real-time prize budgets—capped at 33% of revenue, maxing out at $10,000—via smart logic on the server side.
 
-✅ **🌓 Light & Dark Mode Toggle**  
-Seamless theme switching with WCAG AA-compliant contrast and smooth transitions.
+Scalable, Modular Design
+Clean separation between client/ and server/ codebases for maintainability and growth.
 
-✅ **🌍 Internationalization (i18n)**  
-Built with `react-i18next`. Translate your UI using JSON — ready for global users out of the box.
+Tech Stack
+Layer	Technologies
+Frontend	React (Vite), Tailwind CSS, react-i18next
+Backend	Node.js, Express, Nodemailer
+Database	MongoDB via Mongoose
+Email Service	Gmail SMTP integration
+Styling	Accessible design with Tailwind (WCAG AA)
 
-✅ **💌 Email Pipeline (M9)**  
-Send user-friendly, tabular summaries of expense reports via email using a clean backend API.
+Getting Started
+Clone the repository
 
-✅ **🎯 Prize Budget Engine (M7)**  
-Calculates real-time prize budgets using a 33% cap on revenue (up to $10,000), powered by smart backend logic.
+bash
+Copy
+Edit
+git clone https://github.com/Anmol18125/Actyme-MERN-Dashboard.git
+cd Actyme-MERN-Dashboard
+Backend Setup
 
-✅ **🧩 Modular Architecture**  
-Separation of concerns with `client/` and `server/` folders. Scale with confidence.
-
----
-
-## 🧠 Built With
-
-- **Frontend**: React (Vite), Tailwind CSS, `react-i18next`
-- **Backend**: Node.js, Express.js, Nodemailer
-- **Database**: MongoDB (via Mongoose)
-- **Email**: Gmail SMTP integration
-- **Styling**: WCAG AA-accessible Tailwind design
-
----
-
-
-
----
-
-## ⚙️ Setup Instructions
-
-### 1. Clone the repo
-
-```bash
-git clone https://github.com/Anmol18125 /actyme-mern-dashboard.git
-cd actyme-mern-dashboard
-2. Backend Setup
 bash
 Copy
 Edit
 cd server
 npm install
 npm run dev
-Make sure MongoDB is running and your .env file has the correct credentials.
+Ensure MongoDB is running and configure your .env file:
 
-3. Frontend Setup
-bash
-Copy
-Edit
-cd ../client
-npm install
-npm run dev
-App runs on: http://localhost:5173
-API runs on: http://localhost:5000
-
-📬 Environment Variables
-server/.env
-env
+ini
 Copy
 Edit
 PORT=5000
 MONGO_URI=your_mongodb_uri
 EMAIL_USER=your_email@gmail.com
 EMAIL_PASS=your_email_app_password
-DEFAULT_EMAIL_RECIPIENT=rai836848@gmail.com
-client/.env
-env
+DEFAULT_EMAIL_RECIPIENT=your_recipient@example.com
+Frontend Setup
+
+bash
 Copy
 Edit
-VITE_API_BASE_URL=http://localhost:5000/api
-📡 API Overview
-Method	Endpoint	Description
-GET	/api/progress	Fetch user/cohort progress data
-POST	/api/email	Send summary email with expenses
-POST	/api/unsubscribe	Handle unsubscribe logic (optional)
+cd ../client
+npm install
+npm run dev
+The app will be available at http://localhost:5173 with API access at http://localhost:5000/api.
 
-🧪 Testing the Flow
-Open the frontend in your browser.
+API Endpoints
+GET /api/progress – Fetch cohort or user progress data
 
-Toggle dark/light mode and see theme applied smoothly.
+POST /api/email – Dispatch an expense summary email
 
-Click “Refresh” to load latest progress stats.
+POST /api/unsubscribe – (Optional) Unsubscribe endpoint
 
-Use Postman or frontend button to trigger an email.
+Testing Flow
+Toggle between dark/light modes to experience dynamic theming
 
-Test i18n by switching translation JSONs (e.g., add fr, es, etc.).
+Click “Refresh” to update progress metrics in real time
 
-🧠 Future Enhancements
-📲 Mobile-first PWA support
+Trigger emails using the frontend or with Postman
 
-🔒 User authentication (JWT)
+Test internationalization by switching translation JSONs (e.g., fr, es)
 
-🛠️ Admin dashboard for budget configs
+Future Enhancements (Coming Soon!)
+Mobile-first Progressive Web App (PWA) support
 
-📈 Historical progress graphing
+User authentication via JWT
 
+Admin dashboard for managing budget configurations
 
+Historical progress visualizations and analytics
 
-👨‍💻 Author
+About the Author
 Anmol Ray
-📧 Anmol18125@gmail.com
-🔗 GitHub: Anmol18125 
 
+GitHub: Anmol18125
+
+Email: Anmol18125@gmail.com
