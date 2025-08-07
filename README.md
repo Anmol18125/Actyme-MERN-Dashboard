@@ -30,68 +30,58 @@ Styling	Accessible design with Tailwind (WCAG AA)
 
 Getting Started
 Clone the repository
-
-bash
-Copy
-Edit
 git clone https://github.com/Anmol18125/Actyme-MERN-Dashboard.git
 cd Actyme-MERN-Dashboard
-Backend Setup
-
-bash
-Copy
-Edit
-cd server
-npm install
-npm run dev
+2. Backend Setup
+      cd server
+      npm install
+      npm run dev
 Ensure MongoDB is running and configure your .env file:
 
-ini
-Copy
-Edit
-PORT=5000
-MONGO_URI=your_mongodb_uri
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_email_app_password
-DEFAULT_EMAIL_RECIPIENT=your_recipient@example.com
-Frontend Setup
-
-bash
-Copy
-Edit
-cd ../client
-npm install
-npm run dev
-The app will be available at http://localhost:5173 with API access at http://localhost:5000/api.
+      PORT=5000
+      MONGO_URI=your_mongodb_uri
+      EMAIL_USER=your_email@gmail.com
+      EMAIL_PASS=your_email_app_password
+      DEFAULT_EMAIL_RECIPIENT=your_recipient@example.com
+3 Frontend Setup
+      cd ../client
+      npm install
+      npm run dev
+  The app will be available at http://localhost:5173 with API access at http://localhost:5000/api.
 
 API Endpoints
-GET /api/progress – Fetch cohort or user progress data
-
-POST /api/email – Dispatch an expense summary email
-
-POST /api/unsubscribe – (Optional) Unsubscribe endpoint
+  GET /api/progress – Fetch cohort or user progress data
+  
+  POST /api/email – Dispatch an expense summary email
+  
+  POST /api/unsubscribe – (Optional) Unsubscribe endpoint
 
 Testing Flow
-Toggle between dark/light modes to experience dynamic theming
-
-Click “Refresh” to update progress metrics in real time
-
-Trigger emails using the frontend or with Postman
-
-Test internationalization by switching translation JSONs (e.g., fr, es)
-
+  Toggle between dark/light modes to experience dynamic theming
+  
+  Click “Refresh” to update progress metrics in real time
+  
+  Trigger emails using the frontend or with Postman
+  
+  Test internationalization by switching translation JSONs (e.g., fr, es)
 Future Enhancements (Coming Soon!)
-Mobile-first Progressive Web App (PWA) support
-
-User authentication via JWT
-
-Admin dashboard for managing budget configurations
-
-Historical progress visualizations and analytics
-
+  Mobile-first Progressive Web App (PWA) support
+  
+  User authentication via JWT
+  
+  Admin dashboard for managing budget configurations
+  
+  Historical progress visualizations and analytics
+  
 About the Author
-Anmol Ray
+  Anmol Ray
+  
+  GitHub: Anmol18125
+  
+  Email: Anmol18125@gmail.com
 
-GitHub: Anmol18125
 
-Email: Anmol18125@gmail.com
+
+
+
+
