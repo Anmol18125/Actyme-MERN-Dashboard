@@ -1,18 +1,42 @@
+// server/routes/progress.js
 const express = require('express');
 const router = express.Router();
 const Progress = require('../models/Progress');
+const budgetService = require('../services/budgetService');
 
-// GET latest progress entry
-router.get('/', async (req, res) => {
+/**
+ * GET /api/progress
+ * Returns the latest progress object with budget calculations and itinerary selection.
+ */
+router.get('/', async (req, res, next) => {
   try {
-    const latest = await Progress.findOne().sort({ createdAt: -1 });
-    if (!latest) {
-      return res.status(404).json({ message: 'No progress data found.' });
+    // Get the latest progress doc (seed creates one)
+    let progress = await Progress.findOne().sort({ createdAt: -1 }).lean();
+
+    if (!progress) {
+      // If none exists, return defaults
+      const sampleRevenue = 12000;
+      const allowedBudget = budgetService.computeAllowedBudget(sampleRevenue);
+      const itinerary = budgetService.chooseItineraryWithinBudget(allowedBudget);
+
+      progress = {
+        cycleRevenue: sampleRevenue,
+        userEntries: 0,
+        taskPoints: 0,
+        budgetCap: allowedBudget,
+        selectedItinerary: itinerary.name
+      };
+    } else {
+      // ensure budgetCap and selectedItinerary are up-to-date
+      const allowedBudget = budgetService.computeAllowedBudget(progress.cycleRevenue);
+      const itinerary = budgetService.chooseItineraryWithinBudget(allowedBudget);
+      progress.budgetCap = allowedBudget;
+      progress.selectedItinerary = itinerary.name;
     }
-    res.status(200).json(latest);
+
+    res.json(progress);
   } catch (err) {
-    console.error('Error fetching progress:', err);
-    res.status(500).json({ message: 'Server error.' });
+    next(err);
   }
 });
 

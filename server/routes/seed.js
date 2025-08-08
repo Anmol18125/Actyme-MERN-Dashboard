@@ -1,36 +1,40 @@
+// server/routes/seed.js
 const express = require('express');
 const router = express.Router();
 const Progress = require('../models/Progress');
+const budgetService = require('../services/budgetService');
 
-const itineraries = [
-  'Local Adventure Pack',
-  'Premium Bali Retreat',
-  'Tech Conference in Berlin',
-  'Startup Offsite in Lisbon',
-  'Retreat in the Alps'
-];
-
-router.post('/', async (req, res) => {
+/**
+ * POST /api/seed
+ * Seeds a single progress document (for local testing). Optionally accepts body to set values.
+ * Body example:
+ * { "cycleRevenue": 25000, "userEntries": 12, "taskPoints": 240 }
+ */
+router.post('/', async (req, res, next) => {
   try {
-    // Optional: delete previous entries to avoid clutter
+    const { cycleRevenue, userEntries, taskPoints } = req.body || {};
+
+    const revenue = typeof cycleRevenue === 'number' ? cycleRevenue : Math.floor(Math.random() * 50000) + 10000;
+    const entries = typeof userEntries === 'number' ? userEntries : Math.floor(Math.random() * 30) + 1;
+    const points = typeof taskPoints === 'number' ? taskPoints : Math.floor(Math.random() * 1000) + 20;
+
+    const budgetCap = budgetService.computeAllowedBudget(revenue);
+    const itinerary = budgetService.chooseItineraryWithinBudget(budgetCap);
+
+    // remove old seed docs for simplicity (optional)
     await Progress.deleteMany({});
 
-    const cycleRevenue = Math.floor(Math.random() * 50000) + 10000; // $10k - $60k
-    const budgetCap = Math.min((cycleRevenue * 0.33), 10000).toFixed(2);
-
-    const newEntry = new Progress({
-      cycleRevenue,
-      userEntries: Math.floor(Math.random() * 20) + 5,
-      taskPoints: Math.floor(Math.random() * 500) + 100,
+    const doc = await Progress.create({
+      cycleRevenue: revenue,
+      userEntries: entries,
+      taskPoints: points,
       budgetCap,
-      selectedItinerary: itineraries[Math.floor(Math.random() * itineraries.length)],
+      selectedItinerary: itinerary.name
     });
 
-    await newEntry.save();
-    res.status(201).json(newEntry);
-  } catch (error) {
-    console.error('Error seeding progress:', error.message);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(201).json({ success: true, data: doc });
+  } catch (err) {
+    next(err);
   }
 });
 

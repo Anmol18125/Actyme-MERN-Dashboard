@@ -1,9 +1,9 @@
-// models/UnsubscribedEmail.js
+// server/models/UnsubscribedEmail.js
 const mongoose = require('mongoose');
 
-const UnsubscribedEmailSchema = new mongoose.Schema({
+const schema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
-  unsubscribedAt: { type: Date, default: Date.now },
+  unsubscribedAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('UnsubscribedEmail', UnsubscribedEmailSchema);
+module.exports = mongoose.models.UnsubscribedEmail || mongoose.model('UnsubscribedEmail', schema);

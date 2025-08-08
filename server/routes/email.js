@@ -1,75 +1,85 @@
-// routes/email.js
+// server/routes/email.js
 const express = require('express');
 const router = express.Router();
 const nodemailer = require('nodemailer');
-const dotenv = require('dotenv');
-const UnsubscribedEmail = require('../models/UnsubscribedEmail'); // <-- import model
+const UnsubscribedEmail = require('../models/UnsubscribedEmail');
 
-dotenv.config();
+const DEFAULT_RECIPIENT = process.env.DEFAULT_EMAIL_RECIPIENT || process.env.EMAIL_USER;
 
-const DEFAULT_RECIPIENT = process.env.DEFAULT_EMAIL_RECIPIENT;
-
-router.post('/', async (req, res) => {
+/**
+ * POST /api/email
+ * Body:
+ * {
+ *   "recipient": "user@example.com" OR ["a@x.com","b@y.com"],
+ *   "subject": "Report",
+ *   "expenses": [{ "title": "Hotel", "amount": 400 }, ...]
+ * }
+ */
+router.post('/', async (req, res, next) => {
   try {
-    const { recipient, subject, expenses } = req.body;
+    const { recipient, subject, expenses } = req.body || {};
 
-    const to = recipient || DEFAULT_RECIPIENT;
-
-    if (!to) {
-      return res.status(400).json({ error: 'No recipient provided' });
+    if (!expenses || !Array.isArray(expenses) || expenses.length === 0) {
+      return res.status(400).json({ success: false, error: 'expenses array required' });
     }
 
-    // Check if the email is unsubscribed
-    const unsubscribed = await UnsubscribedEmail.findOne({ email: to });
-    if (unsubscribed) {
-      return res.status(403).json({ success: false, error: 'Email is unsubscribed' });
+    // Decide recipient(s)
+    const to = recipient && recipient.length ? recipient : DEFAULT_RECIPIENT;
+    const recipients = Array.isArray(to) ? to : [to];
+
+    // Check unsubscribed
+    const unsubscribed = await UnsubscribedEmail.find({ email: { $in: recipients } });
+    if (unsubscribed && unsubscribed.length) {
+      const blocked = unsubscribed.map(u => u.email);
+      return res.status(403).json({ success: false, error: 'One or more recipients unsubscribed', blocked });
     }
 
-    const htmlTable = `
-      <h2>Your Expense Summary</h2>
-      <table border="1" cellpadding="8" cellspacing="0">
-        <thead>
+    // Build HTML table
+    const total = expenses.reduce((s, e) => s + Number(e.amount || 0), 0);
+    const rows = expenses.map(e => `
+      <tr>
+        <td style="padding:8px;border:1px solid #ddd">${e.title || 'Item'}</td>
+        <td style="padding:8px;border:1px solid #ddd;text-align:right">$${Number(e.amount || 0).toFixed(2)}</td>
+      </tr>
+    `).join('');
+
+    const html = `
+      <div style="font-family:Arial,Helvetica,sans-serif;color:#111">
+        <h3>Expense Summary</h3>
+        <table style="border-collapse:collapse;width:100%">${rows}
           <tr>
-            <th>Category</th>
-            <th>Amount</th>
+            <td style="padding:8px;border:1px solid #ddd;font-weight:bold">Total</td>
+            <td style="padding:8px;border:1px solid #ddd;text-align:right;font-weight:bold">$${total.toFixed(2)}</td>
           </tr>
-        </thead>
-        <tbody>
-          ${expenses
-            .map(
-              (e) =>
-                `<tr><td>${e.title}</td><td>$${parseFloat(e.amount).toFixed(2)}</td></tr>`
-            )
-            .join('')}
-        </tbody>
-      </table>
-      <p style="font-size:0.9em; color:#666;">
-        If you no longer want to receive these emails, you can 
-        <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/unsubscribe?email=${encodeURIComponent(to)}">
-          unsubscribe here
-        </a>.
-      </p>
+        </table>
+        <p style="font-size:12px;color:#666">
+          To unsubscribe from these emails, click <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/unsubscribe?email=${encodeURIComponent(recipients[0])}">unsubscribe</a>.
+        </p>
+      </div>
     `;
 
+    const text = expenses.map(e => `- ${e.title || 'Item'}: $${Number(e.amount || 0).toFixed(2)}`).join('\n') + `\n\nTotal: $${total.toFixed(2)}`;
+
+    // Transporter
     const transporter = nodemailer.createTransport({
       service: 'Gmail',
       auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
+        pass: process.env.EMAIL_PASS
+      }
     });
 
-    await transporter.sendMail({
+    const info = await transporter.sendMail({
       from: `"Actyme" <${process.env.EMAIL_USER}>`,
-      to,
-      subject,
-      html: htmlTable,
+      to: recipients.join(','),
+      subject: subject || 'Actyme Expense Summary',
+      text,
+      html
     });
 
-    res.status(200).json({ success: true, message: 'Email sent successfully' });
-  } catch (error) {
-    console.error('Email error:', error);
-    res.status(500).json({ success: false, error: 'Failed to send email' });
+    res.json({ success: true, messageId: info.messageId });
+  } catch (err) {
+    next(err);
   }
 });
 

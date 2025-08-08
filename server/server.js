@@ -1,3 +1,4 @@
+// server/server.js
 require('dotenv').config();
 
 const express = require('express');
@@ -7,64 +8,48 @@ const connectDB = require('./config/db');
 
 const app = express();
 
-// =====================
 // Connect to MongoDB
-// =====================
 connectDB();
 
-// =====================
-// Middleware
-// =====================
+// Middleware: CORS (allow local dev + Vercel domain if provided)
 const allowedOrigins = [
-  'https://actyme-mern-dashboard.vercel.app', // Vercel live site
-  'http://localhost:5173' // local dev if using Vite
+  process.env.FRONTEND_URL || 'https://actyme-mern-dashboard.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:3000'
 ];
-
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests without origin (mobile apps, curl, etc.)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    } else {
-      return callback(new Error('Not allowed by CORS'));
-    }
+    if (!origin) return callback(null, true); // allow curl/postman/no-origin requests
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error('CORS policy: This origin is not allowed.'));
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true
+  credentials: true,
 }));
 
 app.use(express.json());
 
-// =====================
-// API Routes
-// =====================
-const progressRoutes = require('./routes/progress');
-const seedRoutes = require('./routes/seed');
-const emailRoutes = require('./routes/email');
-const unsubscribeRoutes = require('./routes/unsubscribe');
+// Routes
+app.use('/api/progress', require('./routes/progress'));
+app.use('/api/seed', require('./routes/seed'));
+app.use('/api/email', require('./routes/email'));
+app.use('/api/unsubscribe', require('./routes/unsubscribe'));
 
-app.use('/api/progress', progressRoutes);
-app.use('/api/seed', seedRoutes);
-app.use('/api/email', emailRoutes); // M9 email feature
-app.use('/api/unsubscribe', unsubscribeRoutes); // M9 unsubscribe feature
-
-// =====================
-// Serve Frontend (React build)
-// =====================
-// If you also deploy frontend files from same Render service
-if (process.env.NODE_ENV === 'production') {
+// Serve client build if present (optional single-deploy approach)
+if (process.env.SERVE_CLIENT === 'true') {
   const clientBuildPath = path.join(__dirname, '../client/dist');
   app.use(express.static(clientBuildPath));
-
   app.get('*', (req, res) => {
     res.sendFile(path.join(clientBuildPath, 'index.html'));
   });
 }
 
-// =====================
-// Start Server
-// =====================
+// Error handler (last middleware)
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err && err.message ? err.message : err);
+  res.status(500).json({ success: false, error: err && err.message ? err.message : 'Server error' });
+});
+
+// Start
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);

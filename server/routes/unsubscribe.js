@@ -1,29 +1,46 @@
-// routes/unsubscribe.js
+// server/routes/unsubscribe.js
 const express = require('express');
 const router = express.Router();
 const UnsubscribedEmail = require('../models/UnsubscribedEmail');
 
-// GET /api/unsubscribe?email=someone@example.com
-router.get('/', async (req, res) => {
+/**
+ * POST /api/unsubscribe
+ * Body: { "email": "user@example.com" }
+ */
+router.post('/', async (req, res, next) => {
   try {
-    const { email } = req.query;
+    const { email } = req.body || {};
+    if (!email) return res.status(400).json({ success: false, error: 'email required' });
 
-    if (!email) {
-      return res.status(400).json({ success: false, error: 'Email is required' });
+    const existing = await UnsubscribedEmail.findOne({ email });
+    if (existing) return res.json({ success: true, message: 'Already unsubscribed' });
+
+    await UnsubscribedEmail.create({ email });
+    return res.json({ success: true, message: 'Unsubscribed' });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * GET /api/unsubscribe?email=...
+ * Link-friendly unsubscribe
+ */
+router.get('/', async (req, res, next) => {
+  try {
+    const email = req.query.email;
+    if (!email) return res.status(400).send('Email is required');
+
+    const existing = await UnsubscribedEmail.findOne({ email });
+    if (existing) {
+      return res.send('This email is already unsubscribed.');
     }
 
-    const alreadyUnsubscribed = await UnsubscribedEmail.findOne({ email });
-    if (alreadyUnsubscribed) {
-      return res.status(200).json({ success: true, message: 'Email already unsubscribed' });
-    }
-
-    const newEntry = new UnsubscribedEmail({ email });
-    await newEntry.save();
-
-    res.status(200).json({ success: true, message: 'Email unsubscribed successfully' });
-  } catch (error) {
-    console.error('Unsubscribe error:', error);
-    res.status(500).json({ success: false, error: 'Internal server error' });
+    await UnsubscribedEmail.create({ email });
+    // simple HTML response for link click
+    res.send(`<html><body><h3>${email} has been unsubscribed.</h3><p>You will no longer receive emails.</p></body></html>`);
+  } catch (err) {
+    next(err);
   }
 });
 
