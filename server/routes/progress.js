@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const Progress = require('../models/Progress');
-const budgetService = require('../services/budgetService');
+const budgetService = require('../services/budgetServices');
 
 /**
  * GET /api/progress
